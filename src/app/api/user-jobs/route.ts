@@ -53,7 +53,10 @@ export async function GET(req: NextRequest) {
       .collection("jobs")
       .get();
 
-    const jobs = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+    const jobs = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<Job, "id">),
+    }));
     return NextResponse.json({ jobs });
   } catch (error) {
     console.error("GET /api/user-jobs 실패:", error);

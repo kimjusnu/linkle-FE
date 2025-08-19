@@ -9,7 +9,7 @@ export default function RedirectHome() {
 
   useEffect(() => {
     router.replace("/dashboard"); // 로그인 후 이동할 실제 보호된 페이지
-  }, []);
+  }, [router]);
 
   return null;
 }
