@@ -16,9 +16,9 @@ interface LinkData {
 // PUT: 링크 수정
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const body = await req.json();
   const { title, url, status, stage, resumeUrl } = body; // ✅ resumeUrl 포함
 
@@ -48,9 +48,9 @@ export async function PUT(
 // DELETE: 링크 삭제
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     await adminDb.collection("links").doc(id).delete();
