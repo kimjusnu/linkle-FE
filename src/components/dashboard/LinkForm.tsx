@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { doc, setDoc } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 
 interface Job {
   id: string;
@@ -55,7 +54,8 @@ const LinkForm: React.FC<{
           location: meta.location || "-",
         };
 
-        await setDoc(doc(db, "users", userId, "jobs", newJob.id), newJob);
+        // 서버 API를 통해 저장 (클라이언트 Firestore 직통 저장을 피함)
+        await axios.post("/api/user-jobs", { userId, job: newJob });
         setJobs((prev) => [...prev, newJob]);
         toast.success("링크가 등록되었습니다!");
         setUrl("");

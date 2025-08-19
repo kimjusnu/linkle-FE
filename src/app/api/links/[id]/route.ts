@@ -1,8 +1,7 @@
 // src/app/api/links/[id]/route.ts
-
-import { db } from "@/lib/firebase";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 // 🔸 수정할 수 있는 필드 타입 정의
 interface LinkData {
@@ -35,7 +34,7 @@ export async function PUT(
   if (resumeUrl !== undefined) updateData.resumeUrl = resumeUrl; // ✅ resumeUrl 반영
 
   try {
-    await updateDoc(doc(db, "links", id), updateData);
+    await adminDb.collection("links").doc(id).update(updateData);
     return NextResponse.json({ message: "링크 수정 완료" });
   } catch (error) {
     console.error("Firestore 업데이트 실패:", error);
@@ -54,7 +53,7 @@ export async function DELETE(
   const { id } = params;
 
   try {
-    await deleteDoc(doc(db, "links", id));
+    await adminDb.collection("links").doc(id).delete();
     return NextResponse.json({ message: "링크 삭제 완료" }, { status: 204 });
   } catch (error) {
     console.error("링크 삭제 실패:", error);

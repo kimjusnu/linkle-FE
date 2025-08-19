@@ -26,8 +26,8 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { db, auth } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import axios from "axios";
 import ConfirmDeleteModal from "../common/ConfirmDeleteModal";
 import { toast } from "sonner";
 
@@ -80,14 +80,14 @@ const JobRow: React.FC<{
   useEffect(() => {
     if (!userId) return;
     if (status !== job.status) {
-      updateDoc(doc(db, "users", userId, "jobs", job.id), { status });
+      axios.put(`/api/user-jobs/${job.id}`, { userId, update: { status } });
     }
   }, [status, job.id, job.status, userId]);
 
   useEffect(() => {
     if (!userId) return;
     if (step !== job.step) {
-      updateDoc(doc(db, "users", userId, "jobs", job.id), { step });
+      axios.put(`/api/user-jobs/${job.id}`, { userId, update: { step } });
     }
   }, [step, job.id, job.step, userId]);
 

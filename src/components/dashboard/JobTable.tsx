@@ -28,14 +28,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { db, auth } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  setDoc,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import axios from "axios";
 
 interface Job {
   id: string;
@@ -73,9 +67,14 @@ const JobTable: React.FC<{
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (!user) return;
       const userId = user.uid;
-      const snapshot = await getDocs(collection(db, "users", userId, "jobs"));
-      const fetched = snapshot.docs.map((doc) => doc.data() as Job);
-      setJobs(fetched);
+      try {
+        const { data } = await axios.get("/api/user-jobs", {
+          params: { userId },
+        });
+        setJobs(data.jobs as Job[]);
+      } catch (error) {
+        console.error("❌ 사용자 잡 목록 불러오기 실패:", error);
+      }
     });
 
     return () => unsubscribe();
@@ -99,7 +98,7 @@ const JobTable: React.FC<{
     };
 
     try {
-      await setDoc(doc(db, "users", userId, "jobs", newEntry.id), newEntry);
+      await axios.post("/api/user-jobs", { userId, job: newEntry });
       setJobs((prev) => [...prev, newEntry]);
       setNewJob({
         company: "",
@@ -110,7 +109,7 @@ const JobTable: React.FC<{
         location: "",
       });
     } catch (err) {
-      console.error("❌ Firestore 저장 실패:", err);
+      console.error("❌ 서버 저장 실패:", err);
     }
   };
 
@@ -120,10 +119,10 @@ const JobTable: React.FC<{
     if (!userId) return;
 
     try {
-      await deleteDoc(doc(db, "users", userId, "jobs", id));
+      await axios.delete(`/api/user-jobs/${id}`, { data: { userId } });
       setJobs((prev) => prev.filter((j) => j.id !== id));
     } catch (err) {
-      console.error("❌ Firestore 삭제 실패:", err);
+      console.error("❌ 서버 삭제 실패:", err);
     }
   };
 

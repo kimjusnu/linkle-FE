@@ -1,7 +1,7 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const config = {
@@ -16,5 +16,9 @@ const config = {
 const app = !getApps().length ? initializeApp(config) : getApp();
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = initializeFirestore(app, {
+  ignoreUndefinedProperties: true,
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: true,
+});
 export const storage = getStorage(app);
