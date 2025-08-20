@@ -1,6 +1,5 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
 
 interface Job {
   id: string;
@@ -25,6 +24,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "invalid body" }, { status: 400 });
     }
 
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
+    }
+
     await adminDb
       .collection("users")
       .doc(userId)
@@ -45,6 +52,14 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
     if (!userId) {
       return NextResponse.json({ message: "missing userId" }, { status: 400 });
+    }
+
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
     }
 
     const snapshot = await adminDb

@@ -1,7 +1,6 @@
 // src/app/api/links/[id]/route.ts
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
 
 // 🔸 수정할 수 있는 필드 타입 정의
 interface LinkData {
@@ -34,6 +33,14 @@ export async function PUT(
   if (resumeUrl !== undefined) updateData.resumeUrl = resumeUrl; // ✅ resumeUrl 반영
 
   try {
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
+    }
+
     await adminDb.collection("links").doc(id).update(updateData);
     return NextResponse.json({ message: "링크 수정 완료" });
   } catch (error) {
@@ -53,6 +60,14 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
+    }
+
     await adminDb.collection("links").doc(id).delete();
     return NextResponse.json({ message: "링크 삭제 완료" }, { status: 204 });
   } catch (error) {

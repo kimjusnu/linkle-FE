@@ -1,11 +1,18 @@
 // app/api/links/route.ts
 export const runtime = "nodejs";
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
 
 // GET: 전체 링크 조회
 export async function GET() {
   try {
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
+    }
+
     const snapshot = await adminDb.collection("links").get();
     const links = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     return NextResponse.json(links);
@@ -28,6 +35,14 @@ export async function POST(req: Request) {
   }
 
   try {
+    const { adminDb } = await import("@/lib/firebaseAdmin");
+    if (!adminDb) {
+      return NextResponse.json(
+        { message: "Firebase Admin not initialized" },
+        { status: 500 }
+      );
+    }
+
     const docRef = await adminDb.collection("links").add({
       userId,
       url,

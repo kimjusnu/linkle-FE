@@ -22,6 +22,11 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
+    if (!adminApp) {
+      console.log("❌ Firebase Admin App not initialized");
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
     try {
       const decoded = await getAuth(adminApp).verifyIdToken(token);
       console.log("✅ 토큰 검증 성공:", decoded.uid);
@@ -37,6 +42,11 @@ export async function middleware(req: NextRequest) {
   console.log("🔹 로그인/회원가입 페이지 여부:", isAuthPage);
 
   if (isAuthPage && token) {
+    if (!adminApp) {
+      console.log("⚠️ Firebase Admin App not initialized → 로그인 페이지 허용");
+      return NextResponse.next();
+    }
+
     try {
       await getAuth(adminApp).verifyIdToken(token);
       console.log("🔁 이미 로그인 상태 → /dashboard로 리디렉트");
